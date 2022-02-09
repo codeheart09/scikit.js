@@ -1,3 +1,6 @@
+import { CrossValidator } from './crossValidator';
+import { Scikit1D, Scikit2D } from '../types';
+
 export interface StratifiedShuffleSplitParams {
   nSplits: number;
   trainSize?: number;
@@ -5,8 +8,7 @@ export interface StratifiedShuffleSplitParams {
   randomState?: number;
 }
 
-// @todo any extension?
-export class StratifiedShuffleSplit {
+export class StratifiedShuffleSplit implements CrossValidator {
   nSplits
   trainSize
   testSize
@@ -25,11 +27,15 @@ export class StratifiedShuffleSplit {
     this.randomState = randomState
   }
 
-  getNSplits() {
+  getNumSplits(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D): number {
 
   }
 
-  split() {
+  split(
+    X: Scikit2D,
+    y?: Scikit1D,
+    groups?: Scikit1D
+  ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> {
 
   }
 }
