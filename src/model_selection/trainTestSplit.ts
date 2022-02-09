@@ -5,7 +5,7 @@ import { dfd, tf } from '../shared/globals'
 import { Tensor } from '@tensorflow/tfjs-core'
 
 /**
- * Validation helper to check if the test/test sizes are meaningful wrt to the
+ * Validation helper to check if the train/test sizes are meaningful wrt to the
  * size of the data (n_samples)
  */
 export function validateShuffleSplit(
