@@ -13,9 +13,10 @@
  * ==========================================================================
  */
 
-import { CrossValidator } from './crossValidator';
-import { Scikit1D, Scikit2D } from '../types';
-import { assert } from '../typesUtils'
+import { BaseShuffleSplit } from './baseShuffleSplit'
+import { Scikit1D, Scikit2D } from '../types'
+import { validateShuffleSplit } from './trainTestSplit'
+import { assert } from '../typesUtils';
 
 export interface StratifiedShuffleSplitParams {
   nSplits?: number;
@@ -24,11 +25,12 @@ export interface StratifiedShuffleSplitParams {
   randomState?: number;
 }
 
-export class StratifiedShuffleSplit implements CrossValidator {
+export class StratifiedShuffleSplit implements BaseShuffleSplit {
   nSplits: number
   testSize?: number
   trainSize?: number
   randomState?: number
+  defaultTestSize = 0.1
 
   constructor({
     nSplits = 10,
@@ -36,27 +38,36 @@ export class StratifiedShuffleSplit implements CrossValidator {
     trainSize,
     randomState
   }: StratifiedShuffleSplitParams = {}) {
-    // Parse & validate: nSplits
-    nSplits = Number(nSplits)
-    assert(
-      Number.isInteger(nSplits) && nSplits > 1,
-      'new StratifiedShuffleSplit({nSplits}): nSplits must be an int greater than 1.'
-    )
-
-    // Parse & validate: testSize
-    if (testSize === undefined && trainSize === undefined) {
-      testSize = 0.1
-    }
-
-    // @todo validate before storing
     this.nSplits = nSplits
-    this.trainSize = trainSize
     this.testSize = testSize
+    this.trainSize = trainSize
     this.randomState = randomState
   }
 
   getNumSplits(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D): number {
 
+  }
+
+  _iterIndices(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D) {
+    // Parameters validation
+    const [nTrain, nTest] = validateShuffleSplit(
+      this.nSplits,
+      this.testSize,
+      this.trainSize,
+      this.defaultTestSize
+    )
+
+    assert(
+      this.randomState === undefined || typeof this.randomState === 'number',
+      `Invalid value for randomState: ${this.randomState}. Must be number or undefined`
+    )
+
+    if (typeof this.randomState === 'number') {
+      assert(
+        Number.isInteger(this.randomState) && this.randomState > 0,
+        'If parameter randomState is provided, it must be an integer > 0'
+      )
+    }
   }
 
   split(
