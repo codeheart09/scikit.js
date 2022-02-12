@@ -17,6 +17,7 @@ import { BaseShuffleSplit } from './baseShuffleSplit'
 import { Scikit1D, Scikit2D } from '../types'
 import { validateShuffleSplit } from './trainTestSplit'
 import { assert } from '../typesUtils';
+import { getLength } from '../utils';
 
 export interface StratifiedShuffleSplitParams {
   nSplits?: number;
@@ -38,6 +39,7 @@ export class StratifiedShuffleSplit implements BaseShuffleSplit {
     trainSize,
     randomState
   }: StratifiedShuffleSplitParams = {}) {
+    // @todo Shouldn't the validation be performed here? Why only when I call split?
     this.nSplits = nSplits
     this.testSize = testSize
     this.trainSize = trainSize
@@ -48,8 +50,11 @@ export class StratifiedShuffleSplit implements BaseShuffleSplit {
 
   }
 
-  _iterIndices(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D) {
-    // Parameters validation
+  // @todo How should I mark the method as private? Comment? Underscore?
+  iterIndices(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D) {
+    const nSamples = getLength(X)
+    y = checkArray() // @todo to be implemented
+
     const [nTrain, nTest] = validateShuffleSplit(
       this.nSplits,
       this.testSize,
@@ -57,6 +62,7 @@ export class StratifiedShuffleSplit implements BaseShuffleSplit {
       this.defaultTestSize
     )
 
+    // @todo would this validation be valid? (ba-dum-ts!) ;)
     assert(
       this.randomState === undefined || typeof this.randomState === 'number',
       `Invalid value for randomState: ${this.randomState}. Must be number or undefined`
