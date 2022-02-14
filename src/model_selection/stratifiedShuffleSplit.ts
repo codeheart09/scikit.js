@@ -19,6 +19,36 @@ import { validateShuffleSplit } from './trainTestSplit'
 import { assert } from '../typesUtils';
 import { getLength } from '../utils';
 
+// @todo pass to types
+type CheckArrayOptions = {
+  acceptSparse?: boolean
+  acceptLargeSparse?: boolean
+  dType?: string
+  order?: 'F' | 'C'
+  copy?: boolean
+  forceAllFinite?: boolean
+  ensure2D?: boolean
+  allowNd?: boolean
+  ensureMinSamples?: number
+  ensureMinFeatures?: number
+  estimator?: string //@todo py: str or estimator instance (lookup estimator instance)
+  inputName?: string
+}
+
+// @todo pass to utils
+function checkArray(
+  array,
+  {
+    dType = 'number',
+    forceAllFinite = true,
+    ensure2D = true,
+    ensureMinSamples = 1,
+    ensureMinFeatures = 1,
+  }: CheckArrayOptions = {}
+) {
+
+}
+
 export interface StratifiedShuffleSplitParams {
   nSplits?: number;
   testSize?: number;
@@ -81,6 +111,7 @@ export class StratifiedShuffleSplit implements BaseShuffleSplit {
     y?: Scikit1D,
     groups?: Scikit1D
   ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> {
+    y = checkArray() // @todo why here and in iterIndices again?
 
   }
 }
