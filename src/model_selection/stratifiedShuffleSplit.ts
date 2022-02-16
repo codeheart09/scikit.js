@@ -23,7 +23,7 @@ import { getLength } from '../utils';
 type CheckArrayOptions = {
   acceptSparse?: boolean
   acceptLargeSparse?: boolean
-  dType?: string
+  dtype?: string
   order?: 'F' | 'C'
   copy?: boolean
   forceAllFinite?: boolean
@@ -39,14 +39,61 @@ type CheckArrayOptions = {
 function checkArray(
   array,
   {
-    dType = 'number',
+    dtype = 'number', // @todo should this be DataType type?
     forceAllFinite = true,
     ensure2D = true,
     ensureMinSamples = 1,
-    ensureMinFeatures = 1,
+    ensureMinFeatures = 1
   }: CheckArrayOptions = {}
 ) {
+  /*
+    @todo needed?
+    # store reference to original array to check if copy is needed when
+    # function returns
+    array_orig = array
+   */
 
+  // Store whether originally we wanted numeric dtype
+  const dtypeNumeric = dtype === 'numeric'
+  const dtypeOrig = array.dType || null // @todo this covers tensor, but how to do that on danfo?
+
+  /*
+    @todo how to make this check with tf / danfo?
+    if not hasattr(dtype_orig, "kind"):
+        # not a data type (e.g. a column named dtype in a pandas DataFrame)
+        dtype_orig = None
+   */
+
+  /*
+    # check if the object contains several dtypes (typically a pandas
+    # DataFrame), and store them. If not, store None.
+    dtypes_orig = None
+    pandas_requires_conversion = False
+    if hasattr(array, "dtypes") and hasattr(array.dtypes, "__array__"):
+        # throw warning if columns are sparse. If all columns are sparse, then
+        # array.sparse exists and sparsity will be preserved (later).
+        with suppress(ImportError):
+            from pandas.api.types import is_sparse
+
+            if not hasattr(array, "sparse") and array.dtypes.apply(is_sparse).any():
+                warnings.warn(
+                    "pandas.DataFrame with sparse columns found."
+                    "It will be converted to a dense numpy array."
+                )
+
+        dtypes_orig = []
+        for dtype_iter in array.dtypes:
+            if dtype_iter.kind == "b":
+                # pandas boolean dtype __array__ interface coerces bools to objects
+                dtype_iter = np.dtype(object)
+            elif _pandas_dtype_needs_early_conversion(dtype_iter):
+                pandas_requires_conversion = True
+
+            dtypes_orig.append(dtype_iter)
+
+        if all(isinstance(dtype_iter, np.dtype) for dtype_iter in dtypes_orig):
+            dtype_orig = np.result_type(*dtypes_orig)
+   */
 }
 
 export interface StratifiedShuffleSplitParams {
