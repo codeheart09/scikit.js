@@ -14,16 +14,25 @@
  */
 
 import { BaseShuffleSplit } from './baseShuffleSplit'
-import { Scikit1D, Scikit2D } from '../types'
+import {
+  ArrayType1D,
+  ArrayType2D,
+  Scikit1D,
+  Scikit2D,
+  ScikitVecOrMatrix,
+  TypedArray
+} from '../types';
 import { validateShuffleSplit } from './trainTestSplit'
-import { assert } from '../typesUtils';
-import { getLength } from '../utils';
+import { assert } from '../typesUtils'
+import { getLength } from '../utils'
+import { DataType } from '@tensorflow/tfjs-core/dist/types'
+import { tf, dfd } from '../shared/globals'
 
 // @todo pass to types
 type CheckArrayOptions = {
   acceptSparse?: boolean
   acceptLargeSparse?: boolean
-  dtype?: string
+  dtype?: DataType
   order?: 'F' | 'C'
   copy?: boolean
   forceAllFinite?: boolean
@@ -37,32 +46,22 @@ type CheckArrayOptions = {
 
 // @todo pass to utils
 function checkArray(
-  array,
+  array: ArrayType1D | ArrayType2D | Scikit1D | Scikit2D | ScikitVecOrMatrix | TypedArray,
   {
-    dtype = 'number', // @todo should this be DataType type?
+    dtype = 'float32', // @todo what should be the default? py = 'numeric'
     forceAllFinite = true,
     ensure2D = true,
     ensureMinSamples = 1,
     ensureMinFeatures = 1
   }: CheckArrayOptions = {}
 ) {
-  /*
-    @todo needed?
-    # store reference to original array to check if copy is needed when
-    # function returns
-    array_orig = array
-   */
-
   // Store whether originally we wanted numeric dtype
-  const dtypeNumeric = dtype === 'numeric'
-  const dtypeOrig = array.dType || null // @todo this covers tensor, but how to do that on danfo?
+  const dtypeNumeric = dtype === 'float32' || 'int32' || 'complex64'
 
-  /*
-    @todo how to make this check with tf / danfo?
-    if not hasattr(dtype_orig, "kind"):
-        # not a data type (e.g. a column named dtype in a pandas DataFrame)
-        dtype_orig = None
-   */
+  let dtypeOrig = null
+  if (array instanceof dfd.Series || array instanceof tf.Tensor) {
+    dtypeOrig = array.dtype
+  }
 
   /*
     # check if the object contains several dtypes (typically a pandas
