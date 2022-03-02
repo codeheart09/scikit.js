@@ -19,7 +19,7 @@ import { validateShuffleSplit } from './trainTestSplit'
 import { assert } from '../typesUtils';
 import { getLength } from '../utils';
 
-// @todo pass to types
+// @todo pass to types file
 type CheckArrayOptions = {
   acceptSparse?: boolean
   acceptLargeSparse?: boolean
@@ -43,38 +43,13 @@ function checkArray(
     forceAllFinite = true,
     ensure2D = true,
     ensureMinSamples = 1,
-    ensureMinFeatures = 1,
+    ensureMinFeatures = 1
   }: CheckArrayOptions = {}
 ) {
 
 }
 
-export interface StratifiedShuffleSplitParams {
-  nSplits?: number;
-  testSize?: number;
-  trainSize?: number;
-  randomState?: number;
-}
-
-export class StratifiedShuffleSplit implements BaseShuffleSplit {
-  nSplits: number
-  testSize?: number
-  trainSize?: number
-  randomState?: number
-  defaultTestSize = 0.1
-
-  constructor({
-    nSplits = 10,
-    testSize,
-    trainSize,
-    randomState
-  }: StratifiedShuffleSplitParams = {}) {
-    // @todo Shouldn't the validation be performed here? Why only when I call split?
-    this.nSplits = nSplits
-    this.testSize = testSize
-    this.trainSize = trainSize
-    this.randomState = randomState
-  }
+export class StratifiedShuffleSplit extends BaseShuffleSplit {
 
   getNumSplits(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D): number {
 

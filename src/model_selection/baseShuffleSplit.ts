@@ -18,37 +18,49 @@ import { tf } from '../shared/globals'
 
 type Tensor1D = tf.Tensor1D
 
-export interface BaseShuffleSplit {
-  /**
-   * Returns the number of splits this {@link CrossValidator}
-   * would produce for the given dataset.
-   *
-   * @param X Feature tensor.
-   * @param y Target tensor (optional).
-   * @param groups A tensor containing grouping information.
-   *               Used by some CrossValidators to make sure
-   *               that data of the same group does not appear
-   *               both in the test and training dataset, e.g.
-   *               multiple blood samples from a single individual.
-   */
-  getNumSplits(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D): number
 
-  /**
-   * Generate indices to split data into training and test set.
-   *
-   * @param X Feature tensor.
-   * @param y Target tensor (optional).
-   * @param groups A tensor containing grouping information.
-   *               Used to make sure that data of the same group does
-   *               not appear both in the test and training dataset,
-   *               e.g. multiple blood samples from a single individual.
-   * @yields Trainings splits, where `trainIndex` represents the
-   *         indices belonging to training data and `testIndex`
-   *         the ones belonging to the test data.
-   */
-  split(
+export interface ShuffleSplitParams {
+  nSplits?: number;
+  testSize?: number;
+  trainSize?: number;
+  randomState?: number;
+}
+
+export abstract class BaseShuffleSplit {
+  nSplits: number
+  testSize?: number
+  trainSize?: number
+  randomState?: number
+  defaultTestSize = 0.1
+
+  protected constructor({
+    nSplits = 10,
+    testSize,
+    trainSize,
+    randomState
+  }: ShuffleSplitParams = {}) {
+    // @todo Shouldn't the validation be performed here? Why only when I call split?
+    this.nSplits = nSplits
+    this.testSize = testSize
+    this.trainSize = trainSize
+    this.randomState = randomState
+  }
+
+  protected abstract iterIndices(
     X: Scikit2D,
     y?: Scikit1D,
     groups?: Scikit1D
-  ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }>
+  ): void; // @todo add proper return type
+
+  public getNumSplits(): number {
+    return this.nSplits
+  }
+
+  public split(
+    X: Scikit2D,
+    y?: Scikit1D,
+    groups?: Scikit1D
+  ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> {
+    // @todo continue here
+  }
 }
