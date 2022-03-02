@@ -14,16 +14,25 @@
  */
 
 import { BaseShuffleSplit } from './baseShuffleSplit'
-import { Scikit1D, Scikit2D } from '../types'
+import {
+  ArrayType1D,
+  ArrayType2D,
+  Scikit1D,
+  Scikit2D,
+  ScikitVecOrMatrix,
+  TypedArray
+} from '../types';
 import { validateShuffleSplit } from './trainTestSplit'
-import { assert } from '../typesUtils';
-import { getLength } from '../utils';
+import { assert } from '../typesUtils'
+import { getLength } from '../utils'
+import { DataType } from '@tensorflow/tfjs-core/dist/types'
+import { tf, dfd } from '../shared/globals'
 
 // @todo pass to types file
 type CheckArrayOptions = {
   acceptSparse?: boolean
   acceptLargeSparse?: boolean
-  dType?: string
+  dtype?: DataType
   order?: 'F' | 'C'
   copy?: boolean
   forceAllFinite?: boolean
@@ -37,16 +46,53 @@ type CheckArrayOptions = {
 
 // @todo pass to utils
 function checkArray(
-  array,
+  array: ArrayType1D | ArrayType2D | Scikit1D | Scikit2D | ScikitVecOrMatrix | TypedArray,
   {
-    dType = 'number',
+    dtype = 'float32', // @todo what should be the default? py = 'numeric'
     forceAllFinite = true,
     ensure2D = true,
     ensureMinSamples = 1,
     ensureMinFeatures = 1
   }: CheckArrayOptions = {}
 ) {
+  // Store whether originally we wanted numeric dtype
+  const dtypeNumeric = dtype === 'float32' || 'int32' || 'complex64'
 
+  let dtypeOrig = null
+  if (array instanceof dfd.Series || array instanceof tf.Tensor) {
+    dtypeOrig = array.dtype
+  }
+
+  /*
+    # check if the object contains several dtypes (typically a pandas
+    # DataFrame), and store them. If not, store None.
+    dtypes_orig = None
+    pandas_requires_conversion = False
+    if hasattr(array, "dtypes") and hasattr(array.dtypes, "__array__"):
+        # throw warning if columns are sparse. If all columns are sparse, then
+        # array.sparse exists and sparsity will be preserved (later).
+        with suppress(ImportError):
+            from pandas.api.types import is_sparse
+
+            if not hasattr(array, "sparse") and array.dtypes.apply(is_sparse).any():
+                warnings.warn(
+                    "pandas.DataFrame with sparse columns found."
+                    "It will be converted to a dense numpy array."
+                )
+
+        dtypes_orig = []
+        for dtype_iter in array.dtypes:
+            if dtype_iter.kind == "b":
+                # pandas boolean dtype __array__ interface coerces bools to objects
+                dtype_iter = np.dtype(object)
+            elif _pandas_dtype_needs_early_conversion(dtype_iter):
+                pandas_requires_conversion = True
+
+            dtypes_orig.append(dtype_iter)
+
+        if all(isinstance(dtype_iter, np.dtype) for dtype_iter in dtypes_orig):
+            dtype_orig = np.result_type(*dtypes_orig)
+   */
 }
 
 export class StratifiedShuffleSplit extends BaseShuffleSplit {
