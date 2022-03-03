@@ -39,7 +39,6 @@ export abstract class BaseShuffleSplit {
     trainSize,
     randomState
   }: ShuffleSplitParams = {}) {
-    // @todo Shouldn't the validation be performed here? Why only when I call split?
     this.nSplits = nSplits
     this.testSize = testSize
     this.trainSize = trainSize
@@ -61,6 +60,6 @@ export abstract class BaseShuffleSplit {
     y?: Scikit1D,
     groups?: Scikit1D
   ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> {
-    // @todo continue here
+    const { X, y, groups } = indexable(X, y, groups); // @todo implement in utils
   }
 }
