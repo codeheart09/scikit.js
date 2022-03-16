@@ -15,124 +15,56 @@
 
 import { BaseShuffleSplit } from './baseShuffleSplit'
 import {
-  ArrayType1D,
-  ArrayType2D,
   Scikit1D,
-  Scikit2D,
-  ScikitVecOrMatrix,
-  TypedArray
+  Scikit2D
 } from '../types';
 import { validateShuffleSplit } from './trainTestSplit'
-import { assert } from '../typesUtils'
 import { getLength } from '../utils'
-import { DataType } from '@tensorflow/tfjs-core/dist/types'
-import { tf, dfd } from '../shared/globals'
 
-// @todo pass to types file
-type CheckArrayOptions = {
-  acceptSparse?: boolean
-  acceptLargeSparse?: boolean
-  dtype?: DataType
-  order?: 'F' | 'C'
-  copy?: boolean
-  forceAllFinite?: boolean
-  ensure2D?: boolean
-  allowNd?: boolean
-  ensureMinSamples?: number
-  ensureMinFeatures?: number
-  estimator?: string //@todo py: str or estimator instance (lookup estimator instance)
-  inputName?: string
-}
-
-// @todo pass to utils
-function checkArray(
-  array: ArrayType1D | ArrayType2D | Scikit1D | Scikit2D | ScikitVecOrMatrix | TypedArray,
-  {
-    dtype = 'float32', // @todo what should be the default? py = 'numeric'
-    forceAllFinite = true,
-    ensure2D = true,
-    ensureMinSamples = 1,
-    ensureMinFeatures = 1
-  }: CheckArrayOptions = {}
-) {
-  // Store whether originally we wanted numeric dtype
-  const dtypeNumeric = dtype === 'float32' || 'int32' || 'complex64'
-
-  let dtypeOrig = null
-  if (array instanceof dfd.Series || array instanceof tf.Tensor) {
-    dtypeOrig = array.dtype
-  }
-
-  /*
-    # check if the object contains several dtypes (typically a pandas
-    # DataFrame), and store them. If not, store None.
-    dtypes_orig = None
-    pandas_requires_conversion = False
-    if hasattr(array, "dtypes") and hasattr(array.dtypes, "__array__"):
-        # throw warning if columns are sparse. If all columns are sparse, then
-        # array.sparse exists and sparsity will be preserved (later).
-        with suppress(ImportError):
-            from pandas.api.types import is_sparse
-
-            if not hasattr(array, "sparse") and array.dtypes.apply(is_sparse).any():
-                warnings.warn(
-                    "pandas.DataFrame with sparse columns found."
-                    "It will be converted to a dense numpy array."
-                )
-
-        dtypes_orig = []
-        for dtype_iter in array.dtypes:
-            if dtype_iter.kind == "b":
-                # pandas boolean dtype __array__ interface coerces bools to objects
-                dtype_iter = np.dtype(object)
-            elif _pandas_dtype_needs_early_conversion(dtype_iter):
-                pandas_requires_conversion = True
-
-            dtypes_orig.append(dtype_iter)
-
-        if all(isinstance(dtype_iter, np.dtype) for dtype_iter in dtypes_orig):
-            dtype_orig = np.result_type(*dtypes_orig)
-   */
-}
 
 export class StratifiedShuffleSplit extends BaseShuffleSplit {
-
-  getNumSplits(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D): number {
-
-  }
-
-  // @todo How should I mark the method as private? Comment? Underscore?
-  iterIndices(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D) {
+  protected iterIndices(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D) {
     const nSamples = getLength(X)
-    y = checkArray() // @todo to be implemented
 
     const [nTrain, nTest] = validateShuffleSplit(
-      this.nSplits,
-      this.testSize,
-      this.trainSize,
-      this.defaultTestSize
+      this._nSplits,
+      this._testSize,
+      this._trainSize,
+      this._defaultTestSize
     )
-
-    // @todo would this validation be valid? (ba-dum-ts!) ;)
-    assert(
-      this.randomState === undefined || typeof this.randomState === 'number',
-      `Invalid value for randomState: ${this.randomState}. Must be number or undefined`
-    )
-
-    if (typeof this.randomState === 'number') {
-      assert(
-        Number.isInteger(this.randomState) && this.randomState > 0,
-        'If parameter randomState is provided, it must be an integer > 0'
-      )
-    }
   }
 
-  split(
-    X: Scikit2D,
-    y?: Scikit1D,
-    groups?: Scikit1D
-  ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> {
-    y = checkArray() // @todo why here and in iterIndices again?
+  // @todo continue here
+  /*
+   classes, y_indices = np.unique(y, return_inverse=True)
+        n_classes = classes.shape[0]
 
-  }
+        class_counts = np.bincount(y_indices)
+        if np.min(class_counts) < 2:
+            raise ValueError(
+                "The least populated class in y has only 1"
+                " member, which is too few. The minimum"
+                " number of groups for any class cannot"
+                " be less than 2."
+            )
+
+        if n_train < n_classes:
+            raise ValueError(
+                "The train_size = %d should be greater or "
+                "equal to the number of classes = %d" % (n_train, n_classes)
+            )
+        if n_test < n_classes:
+            raise ValueError(
+                "The test_size = %d should be greater or "
+                "equal to the number of classes = %d" % (n_test, n_classes)
+            )
+
+        # Find the sorted list of instances for each class:
+        # (np.unique above performs a sort, so code is O(n logn) already)
+        class_indices = np.split(
+            np.argsort(y_indices, kind="mergesort"), np.cumsum(class_counts)[:-1]
+        )
+
+        rng = check_random_state(self.random_state)
+   */
 }

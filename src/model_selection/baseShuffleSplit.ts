@@ -15,6 +15,7 @@
 
 import { Scikit1D, Scikit2D } from '../types'
 import { tf } from '../shared/globals'
+import { convertToTensor1D, convertToTensor2D } from '../utils';
 
 type Tensor1D = tf.Tensor1D
 
@@ -27,11 +28,11 @@ export interface ShuffleSplitParams {
 }
 
 export abstract class BaseShuffleSplit {
-  nSplits: number
-  testSize?: number
-  trainSize?: number
-  randomState?: number
-  defaultTestSize = 0.1
+  protected _nSplits: number
+  protected _testSize?: number
+  protected _trainSize?: number
+  protected _randomState?: number
+  protected _defaultTestSize = 0.1
 
   protected constructor({
     nSplits = 10,
@@ -39,10 +40,10 @@ export abstract class BaseShuffleSplit {
     trainSize,
     randomState
   }: ShuffleSplitParams = {}) {
-    this.nSplits = nSplits
-    this.testSize = testSize
-    this.trainSize = trainSize
-    this.randomState = randomState
+    this._nSplits = nSplits
+    this._testSize = testSize
+    this._trainSize = trainSize
+    this._randomState = randomState
   }
 
   protected abstract iterIndices(
@@ -51,8 +52,8 @@ export abstract class BaseShuffleSplit {
     groups?: Scikit1D
   ): void; // @todo add proper return type
 
-  public getNumSplits(): number {
-    return this.nSplits
+  public getNSplits(): number {
+    return this._nSplits
   }
 
   public split(
@@ -60,6 +61,14 @@ export abstract class BaseShuffleSplit {
     y?: Scikit1D,
     groups?: Scikit1D
   ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> {
-    const { X, y, groups } = indexable(X, y, groups); // @todo implement in utils
+    const features = convertToTensor2D(X);
+    const labels = y ? convertToTensor1D(y) : null;
+    const groupLabels = groups ? convertToTensor1D(groups) : null;
+
+    // @todo
+    /*
+    for train, test in self._iter_indices(X, y, groups):
+            yield train, test
+     */
   }
 }
