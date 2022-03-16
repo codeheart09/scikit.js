@@ -20,10 +20,11 @@ import {
 } from '../types';
 import { validateShuffleSplit } from './trainTestSplit'
 import { getLength } from '../utils'
+import { tf } from '../shared/globals'
 
 
 export class StratifiedShuffleSplit extends BaseShuffleSplit {
-  protected iterIndices(X: Scikit2D, y?: Scikit1D, groups?: Scikit1D) {
+  protected iterIndices(X: Scikit2D, y: Scikit1D, groups?: Scikit1D) {
     const nSamples = getLength(X)
 
     const [nTrain, nTest] = validateShuffleSplit(
@@ -32,39 +33,39 @@ export class StratifiedShuffleSplit extends BaseShuffleSplit {
       this._trainSize,
       this._defaultTestSize
     )
-  }
 
+    const { classes, y_indices } = tf.unique(y);
+    const nClasses = classes.shape()[0];
+
+  }
   // @todo continue here
   /*
-   classes, y_indices = np.unique(y, return_inverse=True)
-        n_classes = classes.shape[0]
-
-        class_counts = np.bincount(y_indices)
-        if np.min(class_counts) < 2:
-            raise ValueError(
-                "The least populated class in y has only 1"
-                " member, which is too few. The minimum"
-                " number of groups for any class cannot"
-                " be less than 2."
-            )
-
-        if n_train < n_classes:
-            raise ValueError(
-                "The train_size = %d should be greater or "
-                "equal to the number of classes = %d" % (n_train, n_classes)
-            )
-        if n_test < n_classes:
-            raise ValueError(
-                "The test_size = %d should be greater or "
-                "equal to the number of classes = %d" % (n_test, n_classes)
-            )
-
-        # Find the sorted list of instances for each class:
-        # (np.unique above performs a sort, so code is O(n logn) already)
-        class_indices = np.split(
-            np.argsort(y_indices, kind="mergesort"), np.cumsum(class_counts)[:-1]
+    class_counts = np.bincount(y_indices)
+    if np.min(class_counts) < 2:
+        raise ValueError(
+            "The least populated class in y has only 1"
+            " member, which is too few. The minimum"
+            " number of groups for any class cannot"
+            " be less than 2."
         )
 
-        rng = check_random_state(self.random_state)
+    if n_train < n_classes:
+        raise ValueError(
+            "The train_size = %d should be greater or "
+            "equal to the number of classes = %d" % (n_train, n_classes)
+        )
+    if n_test < n_classes:
+        raise ValueError(
+            "The test_size = %d should be greater or "
+            "equal to the number of classes = %d" % (n_test, n_classes)
+        )
+
+    # Find the sorted list of instances for each class:
+    # (np.unique above performs a sort, so code is O(n logn) already)
+    class_indices = np.split(
+        np.argsort(y_indices, kind="mergesort"), np.cumsum(class_counts)[:-1]
+    )
+
+    rng = check_random_state(self.random_state)
    */
 }

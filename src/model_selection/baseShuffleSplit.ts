@@ -61,9 +61,9 @@ export abstract class BaseShuffleSplit {
     y?: Scikit1D,
     groups?: Scikit1D
   ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> {
-    const features = convertToTensor2D(X);
-    const labels = y ? convertToTensor1D(y) : null;
-    const groupLabels = groups ? convertToTensor1D(groups) : null;
+    const features = convertToTensor2D(X)
+    const labels = y ? convertToTensor1D(y) : null
+    const groupLabels = groups ? convertToTensor1D(groups) : null
 
     // @todo
     /*
