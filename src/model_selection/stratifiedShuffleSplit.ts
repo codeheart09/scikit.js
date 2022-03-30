@@ -44,20 +44,17 @@ export class StratifiedShuffleSplit extends BaseShuffleSplit {
       throw Error('The least populated class in y has only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2.')
     }
 
+    if (nTrain < nClasses) {
+      throw Error(`The trainSize = ${nTrain} should be greater or equal to the number of classes = ${nClasses}`)
+    }
+
+    if (nTest < nClasses) {
+      throw Error(`The testSize = ${nTrain} should be greater or equal to the number of classes = ${nClasses}`)
+    }
+
   }
   // @todo continue here
   /*
-    if n_train < n_classes:
-        raise ValueError(
-            "The train_size = %d should be greater or "
-            "equal to the number of classes = %d" % (n_train, n_classes)
-        )
-    if n_test < n_classes:
-        raise ValueError(
-            "The test_size = %d should be greater or "
-            "equal to the number of classes = %d" % (n_test, n_classes)
-        )
-
     # Find the sorted list of instances for each class:
     # (np.unique above performs a sort, so code is O(n logn) already)
     class_indices = np.split(
@@ -65,5 +62,27 @@ export class StratifiedShuffleSplit extends BaseShuffleSplit {
     )
 
     rng = check_random_state(self.random_state)
+
+    for _ in range(self.n_splits):
+        # if there are ties in the class-counts, we want
+        # to make sure to break them anew in each iteration
+        n_i = _approximate_mode(class_counts, n_train, rng)
+        class_counts_remaining = class_counts - n_i
+        t_i = _approximate_mode(class_counts_remaining, n_test, rng)
+
+        train = []
+        test = []
+
+        for i in range(n_classes):
+            permutation = rng.permutation(class_counts[i])
+            perm_indices_class_i = class_indices[i].take(permutation, mode="clip")
+
+            train.extend(perm_indices_class_i[: n_i[i]])
+            test.extend(perm_indices_class_i[n_i[i] : n_i[i] + t_i[i]])
+
+        train = rng.permutation(train)
+        test = rng.permutation(test)
+
+        yield train, test
    */
 }
