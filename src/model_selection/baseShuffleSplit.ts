@@ -34,7 +34,7 @@ export abstract class BaseShuffleSplit {
   protected _randomState?: number
   protected _defaultTestSize = 0.1
 
-  protected constructor({
+  public constructor({
     nSplits = 10,
     testSize,
     trainSize,
@@ -60,10 +60,13 @@ export abstract class BaseShuffleSplit {
     X: Scikit2D,
     y?: Scikit1D,
     groups?: Scikit1D
-  ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> {
+  // ): IterableIterator<{ trainIndex: Tensor1D; testIndex: Tensor1D }> { @todo release
+  ): void { // todo temp mock
     const features = convertToTensor2D(X)
-    const labels = y ? convertToTensor1D(y) : null
-    const groupLabels = groups ? convertToTensor1D(groups) : null
+    const labels = y ? convertToTensor1D(y) : undefined
+    const groupLabels = groups ? convertToTensor1D(groups) : undefined
+
+    this.iterIndices(features, labels, groupLabels);
 
     // @todo
     /*

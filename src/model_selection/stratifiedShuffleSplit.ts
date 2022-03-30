@@ -24,31 +24,29 @@ import { tf } from '../shared/globals'
 
 
 export class StratifiedShuffleSplit extends BaseShuffleSplit {
-  protected iterIndices(X: Scikit2D, y: Scikit1D, groups?: Scikit1D) {
+  protected async iterIndices(X: Scikit2D, y: Scikit1D, groups?: Scikit1D) { // @todo add return type
     const nSamples = getLength(X)
 
     const [nTrain, nTest] = validateShuffleSplit(
-      this._nSplits,
+      nSamples,
       this._testSize,
       this._trainSize,
       this._defaultTestSize
     )
 
-    const { classes, y_indices } = tf.unique(y);
-    const nClasses = classes.shape()[0];
+    const { values, indices } = tf.unique(y);
+
+    const nClasses = values.shape[0];
+    const classCounts = tf.bincount(indices, [], nClasses)
+
+    const minClass = await classCounts.min().data();
+    if (minClass[0] < 2) {
+      throw Error('The least populated class in y has only 1 member, which is too few. The minimum number of groups for any class cannot be less than 2.')
+    }
 
   }
   // @todo continue here
   /*
-    class_counts = np.bincount(y_indices)
-    if np.min(class_counts) < 2:
-        raise ValueError(
-            "The least populated class in y has only 1"
-            " member, which is too few. The minimum"
-            " number of groups for any class cannot"
-            " be less than 2."
-        )
-
     if n_train < n_classes:
         raise ValueError(
             "The train_size = %d should be greater or "
