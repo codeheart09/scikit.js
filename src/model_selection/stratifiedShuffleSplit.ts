@@ -52,37 +52,42 @@ export class StratifiedShuffleSplit extends BaseShuffleSplit {
       throw Error(`The testSize = ${nTrain} should be greater or equal to the number of classes = ${nClasses}`)
     }
 
+    console.log(indices);
+    console.log(await classCounts.data());
+
+    // const classIndices =
+
+    // @todo continue here
+    /*
+      # Find the sorted list of instances for each class:
+      # (np.unique above performs a sort, so code is O(n logn) already)
+      class_indices = np.split(
+          np.argsort(y_indices, kind="mergesort"), np.cumsum(class_counts)[:-1]
+      )
+
+      rng = check_random_state(self.random_state)
+
+      for _ in range(self.n_splits):
+          # if there are ties in the class-counts, we want
+          # to make sure to break them anew in each iteration
+          n_i = _approximate_mode(class_counts, n_train, rng)
+          class_counts_remaining = class_counts - n_i
+          t_i = _approximate_mode(class_counts_remaining, n_test, rng)
+
+          train = []
+          test = []
+
+          for i in range(n_classes):
+              permutation = rng.permutation(class_counts[i])
+              perm_indices_class_i = class_indices[i].take(permutation, mode="clip")
+
+              train.extend(perm_indices_class_i[: n_i[i]])
+              test.extend(perm_indices_class_i[n_i[i] : n_i[i] + t_i[i]])
+
+          train = rng.permutation(train)
+          test = rng.permutation(test)
+
+          yield train, test
+     */
   }
-  // @todo continue here
-  /*
-    # Find the sorted list of instances for each class:
-    # (np.unique above performs a sort, so code is O(n logn) already)
-    class_indices = np.split(
-        np.argsort(y_indices, kind="mergesort"), np.cumsum(class_counts)[:-1]
-    )
-
-    rng = check_random_state(self.random_state)
-
-    for _ in range(self.n_splits):
-        # if there are ties in the class-counts, we want
-        # to make sure to break them anew in each iteration
-        n_i = _approximate_mode(class_counts, n_train, rng)
-        class_counts_remaining = class_counts - n_i
-        t_i = _approximate_mode(class_counts_remaining, n_test, rng)
-
-        train = []
-        test = []
-
-        for i in range(n_classes):
-            permutation = rng.permutation(class_counts[i])
-            perm_indices_class_i = class_indices[i].take(permutation, mode="clip")
-
-            train.extend(perm_indices_class_i[: n_i[i]])
-            test.extend(perm_indices_class_i[n_i[i] : n_i[i] + t_i[i]])
-
-        train = rng.permutation(train)
-        test = rng.permutation(test)
-
-        yield train, test
-   */
 }
