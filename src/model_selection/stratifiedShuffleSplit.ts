@@ -35,9 +35,13 @@ export class StratifiedShuffleSplit extends BaseShuffleSplit {
     )
 
     const { values, indices } = tf.unique(y);
+    console.log('values', await values.data());
+    console.log('indices', await indices.data());
 
     const nClasses = values.shape[0];
     const classCounts = tf.bincount(indices, [], nClasses)
+    console.log('nClasses', nClasses);
+    console.log('classCounts', await classCounts.data());
 
     const minClass = await classCounts.min().data();
     if (minClass[0] < 2) {
@@ -49,13 +53,12 @@ export class StratifiedShuffleSplit extends BaseShuffleSplit {
     }
 
     if (nTest < nClasses) {
-      throw Error(`The testSize = ${nTrain} should be greater or equal to the number of classes = ${nClasses}`)
+      throw Error(`The testSize = ${nTest} should be greater or equal to the number of classes = ${nClasses}`)
     }
 
-    console.log(indices);
-    console.log(await classCounts.data());
-
     // const classIndices =
+    const classSplitIndices = tf.slice(tf.cumsum(classCounts), 0, classCounts.shape[0] - 1)
+    console.log(await classSplitIndices.data())
 
     // @todo continue here
     /*
