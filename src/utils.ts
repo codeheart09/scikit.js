@@ -361,3 +361,8 @@ export function sampleWithoutReplacement(
 
   return finalNumbs
 }
+
+export function argsort(data: Scikit1D): Array<number> {
+  data = convertScikit1DToArray(data) as Array<number>;
+  return data.map((v: number, i: number) => [v, i]).sort().map((a: Array<number>) => a[1]);
+}

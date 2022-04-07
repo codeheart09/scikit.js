@@ -19,7 +19,7 @@ import {
   Scikit2D
 } from '../types';
 import { validateShuffleSplit } from './trainTestSplit'
-import { getLength } from '../utils'
+import {getLength, argsort, convertScikit1DToArray, convertToTensor1D} from '../utils';
 import { tf } from '../shared/globals'
 
 
@@ -56,11 +56,19 @@ export class StratifiedShuffleSplit extends BaseShuffleSplit {
       throw Error(`The testSize = ${nTest} should be greater or equal to the number of classes = ${nClasses}`)
     }
 
-    // const classIndices =
     const classSplitIndices = tf.slice(tf.cumsum(classCounts), 0, classCounts.shape[0] - 1)
-    console.log(await classSplitIndices.data())
+    console.log('classSplitIndices', await classSplitIndices.data())
 
-    // @todo continue here
+    const argsortedIndices = argsort(indices)
+    console.log('argsortedIndices', argsortedIndices)
+
+    const classSplitIndicesArr = Array.prototype.slice.call(await classSplitIndices.data());
+    console.log('classSplitIndicesArr', classSplitIndicesArr)
+
+    const classIndices = tf.split(convertToTensor1D(argsortedIndices), classSplitIndicesArr);
+    console.log('classIndices', classIndices)
+
+    // @todo the unique in js does not sort, it needs to be sorted
     /*
       # Find the sorted list of instances for each class:
       # (np.unique above performs a sort, so code is O(n logn) already)

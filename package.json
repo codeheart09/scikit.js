@@ -27,7 +27,8 @@
     "build": "npm run compile:esm && npm run compile:node-cjs && npm run compile:web && npm run compile:es5",
     "build:docs": "cd docs && npm run build",
     "coverage": "node_modules/.bin/coveralls < coverage/lcov.info",
-    "postinstall": "cd docs && npm install && cd .."
+    "postinstall": "cd docs && npm install && cd ..",
+    "mockScript": "npx ts-node mockScripts.ts"
   },
   "repository": {
     "type": "git",
